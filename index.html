@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Visual Search Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+a{text-decoration:none}
+button{cursor:pointer;border:none;font-family:inherit}
+
+/* NAV */
+nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;color:#1e293b;background:none;border:none;cursor:pointer}
+.nav-logo-icon{width:32px;height:32px;background:#4f46e5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{padding:8px 14px;border-radius:8px;font-size:.875rem;font-weight:500;color:#64748b;background:none;border:none;transition:.15s}
+.nav-link:hover{background:#f1f5f9;color:#1e293b}
+.nav-link.active{background:#eef2ff;color:#4f46e5}
+.nav-cta{padding:8px 16px;background:#4f46e5;color:#fff;border-radius:8px;font-size:.875rem;font-weight:600;border:none;transition:.15s}
+.nav-cta:hover{background:#4338ca}
+.hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;padding:4px;cursor:pointer}
+.hamburger span{width:20px;height:2px;background:#64748b;border-radius:2px;transition:.2s}
+.mobile-menu{display:none;flex-direction:column;gap:2px;padding:8px 16px 12px;background:#fff;border-top:1px solid #e2e8f0}
+.mobile-menu.open{display:flex}
+
+/* PAGES */
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* HOME */
+.home-hero{text-align:center;padding:60px 24px 40px;max-width:700px;margin:0 auto}
+.badge{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;color:#4f46e5;font-size:.75rem;font-weight:600;padding:6px 14px;border-radius:20px;margin-bottom:20px}
+.badge-dot{width:7px;height:7px;background:#4f46e5;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-size:2.4rem;font-weight:700;line-height:1.2;margin-bottom:16px;color:#0f172a}
+h1 span{color:#4f46e5}
+.hero-desc{font-size:1.05rem;color:#64748b;line-height:1.7;margin-bottom:32px}
+.hero-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.btn-primary{display:flex;align-items:center;gap:8px;padding:12px 24px;background:#4f46e5;color:#fff;border-radius:12px;font-weight:600;font-size:.95rem;border:none;transition:.15s;box-shadow:0 4px 14px rgba(79,70,229,.25)}
+.btn-primary:hover{background:#4338ca;transform:translateY(-1px)}
+.btn-secondary{display:flex;align-items:center;gap:8px;padding:12px 20px;background:#fff;color:#475569;border-radius:12px;font-weight:600;font-size:.95rem;border:1.5px solid #e2e8f0;transition:.15s}
+.btn-secondary:hover{background:#f8fafc;border-color:#cbd5e1}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:900px;margin:0 auto 40px;padding:0 24px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:.2s}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
+.card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:1.2rem}
+.card h3{font-size:.95rem;font-weight:600;margin-bottom:8px;color:#1e293b}
+.card p{font-size:.85rem;color:#64748b;line-height:1.6}
+
+.how-to{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;max-width:700px;margin:0 auto 32px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.how-to h2{font-size:1rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:#1e293b}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;align-items:flex-start;gap:12px;font-size:.875rem;color:#475569;line-height:1.5}
+.step-num{flex-shrink:0;width:24px;height:24px;background:#eef2ff;color:#4f46e5;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700}
+
+.disclaimer{background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:14px 18px;max-width:700px;margin:0 auto 48px;font-size:.85rem;color:#92400e;line-height:1.6}
+.disclaimer strong{color:#78350f}
+.section-pad{padding:0 24px}
+
+/* SETUP */
+.setup-wrap{max-width:600px;margin:0 auto;padding:32px 24px}
+.back-btn{font-size:.85rem;color:#94a3b8;background:none;border:none;margin-bottom:16px;display:flex;align-items:center;gap:4px;padding:0}
+.back-btn:hover{color:#475569}
+.page-title{font-size:1.8rem;font-weight:700;margin-bottom:4px;color:#0f172a}
+.page-sub{font-size:.9rem;color:#64748b;margin-bottom:28px}
+.form-section{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.form-section h2{font-size:.95rem;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:#1e293b}
+.form-section .sub{font-size:.8rem;color:#94a3b8;margin-bottom:14px}
+input[type=text]{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:.9rem;font-family:inherit;transition:.15s;outline:none;color:#1e293b}
+input[type=text]:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode-btn{border:2px solid #e2e8f0;border-radius:12px;padding:14px;text-align:left;background:#fff;transition:.15s}
+.mode-btn:hover{border-color:#c7d2fe}
+.mode-btn.selected{border-color:#4f46e5;background:#eef2ff}
+.mode-btn strong{display:block;font-size:.9rem;color:#1e293b;margin-bottom:4px}
+.mode-btn.selected strong{color:#4f46e5}
+.mode-btn span{font-size:.78rem;color:#94a3b8;line-height:1.4}
+.slider-row{display:flex;align-items:center;gap:16px}
+input[type=range]{flex:1;accent-color:#4f46e5}
+.slider-val{font-size:1.5rem;font-weight:700;color:#4f46e5;min-width:32px;text-align:center}
+.rep-note{font-size:.8rem;color:#94a3b8;margin-top:8px}
+.instruction-box{background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.instruction-box h3{font-size:.95rem;font-weight:600;color:#3730a3;margin-bottom:12px}
+.instruction-box ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.instruction-box li{font-size:.875rem;color:#4338ca;display:flex;align-items:center;gap:8px}
+.target-preview{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.875rem;color:#4338ca}
+.start-btn{width:100%;padding:16px;background:#4f46e5;color:#fff;border-radius:14px;font-size:1.05rem;font-weight:700;border:none;transition:.15s;box-shadow:0 4px 14px rgba(79,70,229,.25);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.start-btn:hover{background:#4338ca;transform:translateY(-1px)}
+
+/* EXPERIMENT */
+.exp-wrap{max-width:800px;margin:0 auto;padding:20px 16px}
+.exp-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.exp-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge-practice{background:#fef3c7;color:#92400e;font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:20px}
+.badge-condition{background:#eef2ff;color:#4f46e5;font-size:.78rem;font-weight:500;padding:4px 12px;border-radius:20px}
+.badge-setsize{font-size:.85rem;color:#64748b}
+.rt-prev{font-size:.75rem;color:#94a3b8;font-family:monospace}
+.progress-wrap{margin-bottom:20px}
+.progress-label{display:flex;justify-content:space-between;font-size:.85rem;color:#475569;margin-bottom:6px}
+.progress-bar{width:100%;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .3s}
+.progress-fill.practice{background:#f59e0b}
+.progress-fill.main{background:#4f46e5}
+.target-instruction{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;text-align:center;margin-bottom:20px}
+.target-instruction .label{font-size:.85rem;color:#94a3b8;margin-bottom:6px}
+.target-instruction .target-name{font-size:1.5rem;font-weight:700;color:#0f172a}
+.target-instruction .practice-note{font-size:.75rem;color:#f59e0b;margin-top:6px}
+
+.ready-zone{text-align:center;padding:40px 16px}
+.ready-zone p{color:#64748b;font-size:.9rem;margin-bottom:24px}
+.ready-btn{padding:14px 40px;background:#4f46e5;color:#fff;border-radius:12px;font-size:1.05rem;font-weight:600;border:none;transition:.15s;box-shadow:0 4px 14px rgba(79,70,229,.2)}
+.ready-btn:hover{background:#4338ca;transform:translateY(-1px)}
+
+.stimulus-area{position:relative;width:100%;background:#fff;border:2px solid #e2e8f0;border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s;touch-action:none}
+.stimulus-area.feedback-correct{border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2)}
+.stimulus-area.feedback-incorrect{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.2)}
+.stimulus-area::before{content:'';display:block;padding-bottom:55%}
+.stimulus-inner{position:absolute;inset:0}
+.stim-obj{position:absolute;transform:translate(-50%,-50%);background:none;border:none;padding:0;cursor:pointer;transition:transform .1s;-webkit-tap-highlight-color:transparent}
+.stim-obj:hover svg{transform:scale(1.15)}
+.stim-obj:active svg{transform:scale(.95)}
+.stim-obj:disabled{cursor:default}
+.absent-btn{display:block;margin:14px auto 0;padding:12px 32px;background:#f8fafc;border:2px solid #c7d2fe;color:#4f46e5;border-radius:12px;font-size:.9rem;font-weight:600;transition:.15s;font-family:inherit}
+.absent-btn:hover:not(:disabled){background:#eef2ff;border-color:#818cf8}
+.absent-btn:disabled{opacity:.45;cursor:default}
+.feedback-msg{text-align:center;margin-top:10px;font-size:.9rem;font-weight:600;padding:8px 20px;border-radius:8px;display:inline-block}
+.feedback-msg.correct{background:#dcfce7;color:#15803d}
+.feedback-msg.incorrect{background:#fee2e2;color:#dc2626}
+.feedback-center{text-align:center}
+
+.exp-done{max-width:400px;margin:60px auto;text-align:center;padding:0 24px}
+.exp-done .emoji{font-size:3.5rem;margin-bottom:16px}
+.exp-done h2{font-size:1.6rem;font-weight:700;margin-bottom:8px;color:#0f172a}
+.exp-done p{color:#64748b;margin-bottom:8px;font-size:.95rem}
+
+/* RESULTS */
+.results-wrap{max-width:960px;margin:0 auto;padding:28px 20px}
+.results-header{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px}
+.results-title h1{font-size:1.8rem;font-weight:700;color:#0f172a}
+.results-title p{font-size:.875rem;color:#94a3b8;margin-top:4px}
+.export-btns{display:flex;gap:8px;flex-wrap:wrap}
+.export-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:.85rem;font-weight:600;border:none;transition:.15s}
+.export-btn.raw{background:#fff;border:1.5px solid #e2e8f0;color:#475569}
+.export-btn.raw:hover{background:#f8fafc}
+.export-btn.summary{background:#4f46e5;color:#fff}
+.export-btn.summary:hover{background:#4338ca}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{border-radius:14px;border:1px solid;padding:14px 16px}
+.stat-card .slabel{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-bottom:6px}
+.stat-card .sval{font-size:1.6rem;font-weight:700;line-height:1}
+.stat-card .sunit{font-size:.8rem;font-weight:400;opacity:.7;margin-left:2px}
+.stat-card .ssub{font-size:.72rem;opacity:.6;margin-top:4px}
+.stat-indigo{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
+.stat-green{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+.stat-amber{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.stat-red{background:#fef2f2;border-color:#fecaca;color:#dc2626}
+.stat-gray{background:#f8fafc;border-color:#e2e8f0;color:#475569}
+
+.section-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section-card h2{font-size:1rem;font-weight:600;color:#1e293b;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.dot-indigo{width:10px;height:10px;border-radius:50%;background:#4f46e5;display:inline-block}
+.dot-orange{width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block}
+
+.chart-filter{display:flex;gap:4px;margin-left:auto}
+.chart-filter button{padding:5px 12px;border-radius:8px;font-size:.78rem;font-weight:500;border:none;transition:.15s}
+.chart-filter button.active{background:#4f46e5;color:#fff}
+.chart-filter button:not(.active){background:#f1f5f9;color:#64748b}
+.chart-filter button:not(.active):hover{background:#e2e8f0}
+
+canvas{max-width:100%}
+
+.slope-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.slope-note{font-size:.8rem;color:#64748b;line-height:1.6}
+
+.interpretation-box{background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:18px 20px;margin-bottom:20px}
+.interpretation-box h2{font-size:.95rem;font-weight:600;color:#3730a3;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.interpretation-box p{font-size:.875rem;color:#4338ca;line-height:1.7}
+
+.table-toggle{font-size:.85rem;color:#4f46e5;background:none;border:none;text-decoration:underline}
+.trial-table-wrap{overflow-x:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{padding:8px 10px;background:#f8fafc;color:#475569;font-weight:600;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #f1f5f9;color:#334155}
+tr:hover td{background:#f8fafc}
+tr.practice-row td{background:#fffbeb}
+tr.wrong-row td{background:#fef2f2}
+.tag{font-size:.7rem;font-weight:600;padding:2px 7px;border-radius:10px}
+.tag-green{background:#dcfce7;color:#15803d}
+.tag-red{background:#fee2e2;color:#dc2626}
+.tag-gray{background:#f1f5f9;color:#64748b}
+.tag-amber{background:#fef3c7;color:#92400e}
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:.82rem;color:#64748b}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{padding:5px 10px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;font-size:.8rem;transition:.1s}
+.pag-btn:hover:not(:disabled){background:#f1f5f9}
+.pag-btn:disabled{opacity:.4;cursor:default}
+
+.no-data{text-align:center;padding:40px;color:#94a3b8;font-size:.9rem}
+
+/* THEORY */
+.theory-wrap{max-width:750px;margin:0 auto;padding:32px 24px}
+.theory-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.theory-card h2{font-size:1.05rem;font-weight:600;color:#1e293b;margin-bottom:14px}
+.theory-card p{font-size:.9rem;color:#475569;line-height:1.8;margin-bottom:12px}
+.theory-card p:last-child{margin-bottom:0}
+.theory-two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.theory-feature{background:#eef2ff;border:1px solid #c7d2fe;border-radius:16px;padding:20px}
+.theory-conj{background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:20px}
+.theory-feature h2{color:#3730a3;font-size:.95rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.theory-conj h2{color:#9a3412;font-size:.95rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.theory-feature p,.theory-conj p{font-size:.85rem;line-height:1.6;margin-bottom:10px}
+.theory-feature p{color:#4338ca}
+.theory-conj p{color:#c2410c}
+.example-box{background:#fff;border-radius:10px;padding:12px;font-size:.82rem}
+.example-box strong{display:block;margin-bottom:4px;color:#334155}
+.example-box span{color:#64748b;display:block;line-height:1.5}
+.formula-box{background:#f8fafc;border-radius:10px;padding:14px;font-family:monospace;font-size:.95rem;color:#334155;margin:12px 0}
+.ref-box{background:#f8fafc;border-radius:10px;padding:12px 14px;font-size:.8rem;color:#64748b;margin-top:12px;display:flex;gap:8px;align-items:flex-start}
+.warning-card{background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px;margin-bottom:20px}
+.warning-card h2{font-size:.95rem;font-weight:600;color:#92400e;margin-bottom:10px}
+.warning-card ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.warning-card li{font-size:.85rem;color:#92400e;display:flex;gap:8px;line-height:1.5}
+.privacy-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px}
+.privacy-card h2{font-size:.95rem;font-weight:600;color:#475569;margin-bottom:8px}
+.privacy-card p{font-size:.85rem;color:#64748b;line-height:1.7}
+
+/* HISTORY */
+.history-wrap{max-width:750px;margin:0 auto;padding:32px 24px}
+.history-header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:24px}
+.del-all-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #fecaca;color:#dc2626;background:#fff;border-radius:10px;font-size:.83rem;font-weight:600;transition:.15s}
+.del-all-btn:hover{background:#fef2f2}
+.refresh-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #e2e8f0;color:#64748b;background:#fff;border-radius:10px;font-size:.83rem;font-weight:600;transition:.15s}
+.refresh-btn:hover{background:#f8fafc}
+.session-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:.2s}
+.session-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.sc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sc-meta strong{font-size:.95rem;color:#1e293b}
+.sc-meta p{font-size:.78rem;color:#94a3b8;margin-top:2px}
+.sc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.sc-actions{display:flex;gap:4px}
+.sc-action-btn{width:32px;height:32px;border-radius:8px;border:none;background:none;display:flex;align-items:center;justify-content:center;color:#94a3b8;transition:.15s;font-size:1rem}
+.sc-action-btn:hover.view{background:#eef2ff;color:#4f46e5}
+.sc-action-btn:hover.dl{background:#f0fdf4;color:#16a34a}
+.sc-action-btn:hover.del{background:#fef2f2;color:#dc2626}
+.sc-mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:.78rem}
+.sc-mini{border-radius:8px;padding:8px 10px}
+.sc-mini p:first-child{font-weight:500;margin-bottom:3px;opacity:.8}
+.sc-mini p:last-child{font-weight:700;font-size:.92rem}
+.confirm-box{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.confirm-box p{flex:1;font-size:.875rem;color:#dc2626;font-weight:500}
+.confirm-box strong{display:block;font-size:.78rem;font-weight:400;color:#ef4444}
+.confirm-btns{display:flex;gap:6px}
+.confirm-ok{padding:6px 14px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600}
+.confirm-cancel{padding:6px 14px;background:#fff;color:#64748b;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600}
+.empty-state{text-align:center;padding:64px 24px}
+.empty-state .empty-icon{font-size:3rem;margin-bottom:16px;opacity:.3}
+.empty-state p{color:#94a3b8;margin-bottom:20px}
+
+/* FOOTER */
+footer{text-align:center;padding:32px 24px;font-size:.8rem;color:#94a3b8;border-top:1px solid #e2e8f0;background:#fff;margin-top:40px}
+footer p+p{margin-top:4px}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  h1{font-size:1.8rem}
+  .nav-links,.nav-cta{display:none}
+  .hamburger{display:flex}
+  .theory-two{grid-template-columns:1fr}
+  .sc-mini-stats{grid-template-columns:repeat(2,1fr)}
+  .mode-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <button class="nav-logo" onclick="navigate('home')">
+    <div class="nav-logo-icon">⚗</div>
+    Visual Search Lab
+  </button>
+  <div class="nav-links">
+    <button class="nav-link" data-page="home" onclick="navigate('home')">Beranda</button>
+    <button class="nav-link" data-page="theory" onclick="navigate('theory')">Teori</button>
+    <button class="nav-link" data-page="history" onclick="navigate('history')">Riwayat</button>
+    <button class="nav-cta" onclick="navigate('setup')">Mulai Eksperimen</button>
+  </div>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="nav-link" onclick="navigate('home');toggleMenu()">Beranda</button>
+  <button class="nav-link" onclick="navigate('theory');toggleMenu()">Teori</button>
+  <button class="nav-link" onclick="navigate('history');toggleMenu()">Riwayat</button>
+  <button class="nav-cta" style="border-radius:8px;text-align:left" onclick="navigate('setup');toggleMenu()">Mulai Eksperimen</button>
+</div>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="home-hero">
+    <div class="badge"><span class="badge-dot"></span>Eksperimen Atensi Visual</div>
+    <h1>Seberapa Cepat Kamu<br><span>Menemukan Target?</span></h1>
+    <p class="hero-desc">Temukan objek yang tepat di antara berbagai pengalih perhatian. Uji bagaimana warna, bentuk, dan jumlah objek memengaruhi kecepatan pencarian visualmu.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="navigate('setup')">▶ Mulai Eksperimen</button>
+      <button class="btn-secondary" onclick="navigate('theory')">📖 Tentang Eksperimen</button>
+      <button class="btn-secondary" onclick="navigate('history')">🕐 Riwayat Hasil</button>
+    </div>
+  </div>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon" style="background:#eef2ff">🔍</div>
+      <h3>Feature Search</h3>
+      <p>Cari objek yang memiliki satu fitur visual berbeda dari semua objek lainnya — hanya berdasarkan warna atau bentuk.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#fff7ed">🔀</div>
+      <h3>Conjunction Search</h3>
+      <p>Cari objek berdasarkan kombinasi dua fitur visual sekaligus, seperti warna dan bentuk — lebih menantang!</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#f0fdf4">📊</div>
+      <h3>Analisis Hasil</h3>
+      <p>Lihat waktu reaksi, akurasi, Search Slope, dan grafik hubungan antara jumlah objek dengan kecepatan pencarian.</p>
+    </div>
+  </div>
+  <div class="section-pad">
+    <div class="how-to">
+      <h2>❓ Cara Bermain</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div>Baca instruksi — kamu akan diberitahu objek apa yang harus dicari.</div>
+        <div class="step"><div class="step-num">2</div>Klik "Siap" untuk menampilkan layar pencarian.</div>
+        <div class="step"><div class="step-num">3</div>Klik objek target di layar secepat mungkin.</div>
+        <div class="step"><div class="step-num">4</div>Jika target tidak ada, klik tombol "Target Tidak Ada".</div>
+        <div class="step"><div class="step-num">5</div>Selesaikan semua percobaan untuk melihat hasil analisis.</div>
+      </div>
+    </div>
+    <div class="disclaimer"><strong>Catatan:</strong> Aplikasi ini adalah alat pembelajaran interaktif dan bukan alat diagnosis psikologis. Data disimpan secara lokal di browser dan tidak dikirim ke server mana pun.</div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="page-setup" class="page">
+  <div class="setup-wrap">
+    <button class="back-btn" onclick="navigate('home')">← Kembali</button>
+    <div class="page-title">Pengaturan Eksperimen</div>
+    <div class="page-sub">Sesuaikan percobaan sebelum memulai.</div>
+
+    <div class="form-section">
+      <h2>👤 Kode Peserta</h2>
+      <div class="sub">Opsional — tidak perlu nama asli</div>
+      <input type="text" id="input-participant" placeholder="Contoh: P001 atau nama panggilan" maxlength="30">
+    </div>
+
+    <div class="form-section">
+      <h2>🧪 Mode Permainan</h2>
+      <div class="mode-grid" style="margin-top:10px">
+        <button class="mode-btn" id="mode-practice" onclick="selectMode('practice')">
+          <strong>Mode Latihan</strong>
+          <span>8 percobaan. Untuk mengenal cara bermain. Data tidak dianalisis.</span>
+        </button>
+        <button class="mode-btn selected" id="mode-experiment" onclick="selectMode('experiment')">
+          <strong>Mode Eksperimen</strong>
+          <span>Prosedur lengkap dengan 10 latihan + 128 percobaan utama.</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-section" id="rep-section">
+      <h2>🔁 Pengulangan per Kondisi</h2>
+      <div class="slider-row" style="margin-top:10px">
+        <input type="range" id="rep-slider" min="4" max="12" step="2" value="8" oninput="updateRepLabel()">
+        <div class="slider-val" id="rep-label">8</div>
+      </div>
+      <div class="rep-note" id="rep-note">Total percobaan utama: 128 + 10 latihan = <strong>138</strong></div>
+    </div>
+
+    <div class="instruction-box">
+      <h3>📋 Instruksi Eksperimen</h3>
+      <ul>
+        <li>🎯 Target yang dicari: <strong>Lingkaran Merah</strong></li>
+        <li>👆 Klik lingkaran merah jika terlihat di layar</li>
+        <li>🚫 Klik "Target Tidak Ada" jika tidak menemukan lingkaran merah</li>
+        <li>⚡ Respons secepat dan setepat mungkin</li>
+        <li>✋ Jangan tebak — pastikan kamu benar-benar melihatnya</li>
+      </ul>
+      <div class="target-preview">
+        <span>Preview target:</span>
+        <svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#ef4444" stroke="#b91c1c" stroke-width="1.5"/></svg>
+        <span><strong>Lingkaran Merah</strong></span>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="startExperiment()">Mulai Sekarang →</button>
+  </div>
+</div>
+
+<!-- EXPERIMENT -->
+<div id="page-experiment" class="page">
+  <div class="exp-wrap">
+    <div class="exp-topbar">
+      <div class="exp-badges">
+        <span class="badge-practice" id="exp-practice-badge" style="display:none">Latihan</span>
+        <span class="badge-condition" id="exp-condition-badge">Feature Search</span>
+        <span class="badge-setsize" id="exp-setsize-badge">8 objek</span>
+      </div>
+      <span class="rt-prev" id="exp-rt-prev"></span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="exp-progress-label">Percobaan 1 dari 138</span>
+        <span id="exp-progress-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="exp-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="target-instruction">
+      <div class="label">Temukan:</div>
+      <div class="target-name" id="exp-target-name">Lingkaran Merah</div>
+      <div class="practice-note" id="exp-practice-note" style="display:none">Percobaan latihan — data ini tidak masuk ke analisis utama</div>
+    </div>
+    <div id="exp-ready-zone" class="ready-zone">
+      <p>Siap? Klik tombol di bawah untuk menampilkan objek.</p>
+      <button class="ready-btn" onclick="showStimulus()">Siap →</button>
+    </div>
+    <div id="exp-stimulus-zone" style="display:none">
+      <div class="stimulus-area" id="stimulus-area">
+        <div class="stimulus-inner" id="stimulus-inner"></div>
+      </div>
+      <button class="absent-btn" id="absent-btn" onclick="handleAbsent()">Target Tidak Ada</button>
+      <div class="feedback-center"><span class="feedback-msg" id="feedback-msg" style="display:none"></span></div>
+    </div>
+    <div id="exp-done-zone" class="exp-done" style="display:none">
+      <div class="emoji">🎉</div>
+      <h2>Eksperimen Selesai!</h2>
+      <p id="exp-done-count"></p>
+      <br>
+      <button class="btn-primary" style="margin:0 auto" onclick="navigate('results')">Lihat Hasil Analisis →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="page-results" class="page">
+  <div class="results-wrap" id="results-content">
+    <div class="no-data">Belum ada sesi aktif. <button class="nav-link" style="display:inline;color:#4f46e5" onclick="navigate('setup')">Mulai eksperimen</button></div>
+  </div>
+</div>
+
+<!-- THEORY -->
+<div id="page-theory" class="page">
+  <div class="theory-wrap">
+    <button class="back-btn" onclick="navigate('home')">← Beranda</button>
+    <div class="page-title">Tentang Eksperimen</div>
+    <div class="page-sub" style="margin-bottom:24px">Landasan teori Visual Search Lab</div>
+
+    <div class="theory-card">
+      <h2>📚 Feature Integration Theory</h2>
+      <p>Aplikasi ini didasarkan pada <strong>Feature Integration Theory</strong> yang dikemukakan oleh Treisman dan Gelade (1980). Teori ini menjelaskan bagaimana otak manusia memproses fitur-fitur visual dan menggabungkannya untuk mengenali objek.</p>
+      <p>Menurut teori ini, fitur visual dasar seperti warna dan bentuk diproses secara paralel dan otomatis. Namun, mengenali objek berdasarkan kombinasi dua fitur memerlukan perhatian yang lebih terfokus dan cenderung berjalan secara serial.</p>
+      <div class="ref-box">🔗 Treisman, A. M., & Gelade, G. (1980). A feature-integration theory of attention. <em>Cognitive Psychology, 12</em>(1), 97–136. DOI: 10.1016/0010-0285(80)90005-5</div>
+    </div>
+
+    <div class="theory-two">
+      <div class="theory-feature">
+        <h2>🔍 Feature Search</h2>
+        <p>Target berbeda dari semua distractor berdasarkan <strong>satu fitur</strong> saja, misalnya warna.</p>
+        <div class="example-box">
+          <strong>Contoh:</strong>
+          <span>Target: <strong>Lingkaran Merah</strong></span>
+          <span>Distractor: Lingkaran Biru, Hijau, Kuning</span>
+        </div>
+        <p style="margin-top:10px;font-size:.8rem">Prediksi: Waktu reaksi relatif stabil meskipun jumlah objek bertambah.</p>
+      </div>
+      <div class="theory-conj">
+        <h2>🔀 Conjunction Search</h2>
+        <p>Target dikenali berdasarkan <strong>kombinasi dua fitur</strong>, misalnya warna DAN bentuk.</p>
+        <div class="example-box">
+          <strong>Contoh:</strong>
+          <span>Target: <strong>Lingkaran Merah</strong></span>
+          <span>Distractor A: Lingkaran Biru (bentuk sama)</span>
+          <span>Distractor B: Persegi Merah (warna sama)</span>
+        </div>
+        <p style="margin-top:10px;font-size:.8rem">Prediksi: Waktu reaksi dapat meningkat seiring bertambahnya jumlah objek.</p>
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <h2>📈 Search Slope</h2>
+      <p>Search Slope dihitung menggunakan regresi linear sederhana:</p>
+      <div class="formula-box">RT = a + b × N</div>
+      <p>Di mana <strong>RT</strong> = rata-rata waktu reaksi (ms), <strong>a</strong> = intercept, <strong>b</strong> = Search Slope (ms/objek), <strong>N</strong> = jumlah objek. Slope mendekati nol mengindikasikan pencarian lebih paralel; slope positif besar mengindikasikan pencarian lebih serial.</p>
+    </div>
+
+    <div class="warning-card">
+      <h2>⚠ Catatan Metodologi</h2>
+      <ul>
+        <li>•<span>Waktu reaksi diukur dengan <code>performance.now()</code> untuk presisi tinggi.</span></li>
+        <li>•<span>Respons &lt; 100 ms dianggap tidak valid (kemungkinan antisipasi).</span></li>
+        <li>•<span>Respons &gt; 10 detik dianggap tidak valid (kemungkinan distraksi).</span></li>
+        <li>•<span>Data latihan tidak dimasukkan ke analisis utama.</span></li>
+        <li>•<span>Jangan menyimpulkan kemampuan kognitif hanya dari satu sesi.</span></li>
+      </ul>
+    </div>
+
+    <div class="privacy-card">
+      <h2>🔒 Privasi dan Etika</h2>
+      <p>Aplikasi ini adalah alat pembelajaran interaktif dan <strong>bukan alat diagnosis psikologis</strong>. Seluruh data disimpan secara lokal di browser menggunakan localStorage dan tidak dikirimkan ke server mana pun. Anda dapat menghapus data kapan saja melalui halaman Riwayat.</p>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="page-history" class="page">
+  <div class="history-wrap">
+    <div class="history-header">
+      <div>
+        <button class="back-btn" onclick="navigate('home')">← Beranda</button>
+        <div class="page-title">Riwayat Sesi</div>
+        <div class="page-sub" id="history-count">0 sesi tersimpan</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="refresh-btn" onclick="renderHistory()">↻ Refresh</button>
+        <button class="del-all-btn" onclick="confirmDeleteAll()">🗑 Hapus Semua</button>
+      </div>
+    </div>
+    <div id="history-confirm-all" style="display:none"></div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<footer id="main-footer">
+  <p>Visual Search Lab · Alat Pembelajaran Atensi Visual</p>
+  <p>Berdasarkan Feature Integration Theory — Treisman & Gelade (1980)</p>
+  <p>Data disimpan lokal di browser. Tidak ada data yang dikirim ke server.</p>
+</footer>
+
+<script>
+// ============================================================
+// UTILITIES
+// ============================================================
+const $ = id => document.getElementById(id);
+const rand = (n) => Math.floor(Math.random() * n);
+
+function seededRng(seed) {
+  let s = seed | 0;
+  return function() {
+    s |= 0; s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffle(arr, rng) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let currentPage = 'home';
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link[data-page]').forEach(l => l.classList.remove('active'));
+  $('page-' + page).classList.add('active');
+  const link = document.querySelector(`.nav-link[data-page="${page}"]`);
+  if (link) link.classList.add('active');
+  $('main-footer').style.display = (page === 'experiment') ? 'none' : '';
+  currentPage = page;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (page === 'history') renderHistory();
+  if (page === 'results') renderResults();
+}
+
+function toggleMenu() {
+  $('mobile-menu').classList.toggle('open');
+}
+
+// ============================================================
+// SETUP
+// ============================================================
+let selectedMode = 'experiment';
+
+function selectMode(mode) {
+  selectedMode = mode;
+  $('mode-practice').classList.toggle('selected', mode === 'practice');
+  $('mode-experiment').classList.toggle('selected', mode === 'experiment');
+  $('rep-section').style.display = mode === 'experiment' ? '' : 'none';
+}
+
+function updateRepLabel() {
+  const v = parseInt($('rep-slider').value);
+  $('rep-label').textContent = v;
+  const main = 2 * 4 * 2 * v;
+  $('rep-note').innerHTML = `Total percobaan utama: ${main} + 10 latihan = <strong>${main + 10}</strong>`;
+}
+
+// ============================================================
+// EXPERIMENT ENGINE
+// ============================================================
+const COLORS = { red:'#ef4444', blue:'#3b82f6', green:'#22c55e', yellow:'#eab308', orange:'#f97316', purple:'#a855f7' };
+const STROKES = { red:'#b91c1c', blue:'#1d4ed8', green:'#15803d', yellow:'#a16207', orange:'#c2410c', purple:'#7e22ce' };
+const COLOR_LABEL = { red:'Merah', blue:'Biru', green:'Hijau', yellow:'Kuning', orange:'Oranye', purple:'Ungu' };
+const SHAPE_LABEL = { circle:'Lingkaran', square:'Persegi', triangle:'Segitiga', diamond:'Wajik' };
+const DIST_COLORS = ['blue','green','yellow','orange','purple'];
+const DIST_SHAPES = ['square','triangle','diamond'];
+const SET_SIZES = [8, 16, 24, 32];
+
+function drawShape(shape, color, size=38) {
+  const f = COLORS[color], s = STROKES[color], h = size/2;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', size); svg.setAttribute('height', size);
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+  svg.style.display = 'block';
+  let el;
+  if (shape === 'circle') {
+    el = document.createElementNS(ns, 'circle');
+    el.setAttribute('cx', h); el.setAttribute('cy', h); el.setAttribute('r', h-2);
+  } else if (shape === 'square') {
+    el = document.createElementNS(ns, 'rect');
+    el.setAttribute('x', 2); el.setAttribute('y', 2);
+    el.setAttribute('width', size-4); el.setAttribute('height', size-4);
+  } else if (shape === 'triangle') {
+    el = document.createElementNS(ns, 'polygon');
+    el.setAttribute('points', `${h},2 ${size-2},${size-2} 2,${size-2}`);
+  } else {
+    el = document.createElementNS(ns, 'polygon');
+    el.setAttribute('points', `${h},2 ${size-2},${h} ${h},${size-2} 2,${h}`);
+  }
+  el.setAttribute('fill', f); el.setAttribute('stroke', s); el.setAttribute('stroke-width', '1.5');
+  svg.appendChild(el);
+  return svg;
+}
+
+function generatePositions(n, rng) {
+  const positions = [];
+  for (let i = 0; i < n; i++) {
+    let placed = false;
+    for (let t = 0; t < 500; t++) {
+      const x = 7 + rng() * 86, y = 7 + rng() * 86;
+      const ok = positions.every(p => {
+        const dx = p.x-x, dy = p.y-y;
+        return Math.sqrt(dx*dx+dy*dy) >= 10;
+      });
+      if (ok) { positions.push({x,y}); placed = true; break; }
+    }
+    if (!placed) positions.push({ x: 7+rng()*86, y: 7+rng()*86 });
+  }
+  return positions;
+}
+
+function generateObjects(condition, setSize, targetPresent, seed) {
+  const rng = seededRng(seed);
+  const positions = generatePositions(setSize, rng);
+  const targetIdx = targetPresent ? Math.floor(rng() * setSize) : -1;
+  const objects = [];
+  for (let i = 0; i < setSize; i++) {
+    const isTarget = i === targetIdx;
+    let shape, color;
+    if (isTarget) {
+      shape = 'circle'; color = 'red';
+    } else if (condition === 'feature_search') {
+      shape = 'circle';
+      color = DIST_COLORS[Math.floor(rng() * DIST_COLORS.length)];
+    } else {
+      if (rng() < 0.5) { shape = 'circle'; color = DIST_COLORS[Math.floor(rng()*DIST_COLORS.length)]; }
+      else { shape = DIST_SHAPES[Math.floor(rng()*DIST_SHAPES.length)]; color = 'red'; }
+    }
+    objects.push({ shape, color, x: positions[i].x, y: positions[i].y, isTarget });
+  }
+  return objects;
+}
+
+function buildSchedule(mode, reps) {
+  const trials = [];
+  if (mode === 'practice') {
+    const combos = [
+      {condition:'feature_search',setSize:8,targetPresent:true},
+      {condition:'feature_search',setSize:8,targetPresent:false},
+      {condition:'conjunction_search',setSize:8,targetPresent:true},
+      {condition:'conjunction_search',setSize:8,targetPresent:false},
+    ];
+    for (let i = 0; i < 8; i++) {
+      const c = combos[i % combos.length];
+      trials.push({...c, isPractice:true, stimulusSeed: rand(999999)+1});
+    }
+    return trials;
+  }
+  // Practice first
+  const practiceBase = [
+    {condition:'feature_search',setSize:8,targetPresent:true},
+    {condition:'feature_search',setSize:16,targetPresent:false},
+    {condition:'conjunction_search',setSize:8,targetPresent:true},
+    {condition:'conjunction_search',setSize:16,targetPresent:false},
+    {condition:'feature_search',setSize:24,targetPresent:true},
+    {condition:'conjunction_search',setSize:24,targetPresent:false},
+    {condition:'feature_search',setSize:32,targetPresent:true},
+    {condition:'conjunction_search',setSize:32,targetPresent:false},
+    {condition:'feature_search',setSize:8,targetPresent:false},
+    {condition:'conjunction_search',setSize:8,targetPresent:true},
+  ];
+  for (let i = 0; i < 10; i++) {
+    trials.push({...practiceBase[i], isPractice:true, stimulusSeed: rand(999999)+1});
+  }
+  // Main
+  const main = [];
+  for (const cond of ['feature_search','conjunction_search']) {
+    for (const ss of SET_SIZES) {
+      for (const tp of [true, false]) {
+        for (let r = 0; r < reps; r++) {
+          main.push({condition:cond, setSize:ss, targetPresent:tp, isPractice:false, stimulusSeed:rand(999999)+1});
+        }
+      }
+    }
+  }
+  const rng = seededRng(Date.now() % 1000000);
+  const shuffled = shuffle(main, rng);
+  return [...trials, ...shuffled];
+}
+
+// ============================================================
+// SESSION STATE
+// ============================================================
+let activeSession = null;
+let expState = null;
+
+function startExperiment() {
+  const participantId = $('input-participant').value.trim() || 'anonim';
+  const mode = selectedMode;
+  const reps = parseInt($('rep-slider').value);
+  const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  const schedule = buildSchedule(mode, reps);
+
+  activeSession = {
+    sessionId, participantId, mode,
+    startTime: new Date().toISOString(),
+    endTime: null, completed: false,
+    config: { mode, repetitionsPerCondition: reps },
+    trials: [],
+    schedule
+  };
+
+  expState = {
+    currentIndex: 0,
+    phase: 'instruction', // instruction | stimulus | feedback | done
+    stimulusOnset: null,
+    responded: false,
+    lastRT: null,
+    feedbackTimer: null
+  };
+
+  saveSession(activeSession);
+  navigate('experiment');
+  renderTrial();
+}
+
+function renderTrial() {
+  const { schedule } = activeSession;
+  const { currentIndex } = expState;
+  const total = schedule.length;
+  const practiceTotal = schedule.filter(t => t.isPractice).length;
+
+  if (currentIndex >= total) {
+    finishExperiment(); return;
+  }
+
+  const trial = schedule[currentIndex];
+  const isPractice = trial.isPractice;
+  const mainDone = currentIndex - (isPractice ? currentIndex : practiceTotal);
+  const mainTotal = total - practiceTotal;
+
+  // Badges
+  $('exp-practice-badge').style.display = isPractice ? '' : 'none';
+  $('exp-condition-badge').textContent = trial.condition === 'feature_search' ? 'Feature Search' : 'Conjunction Search';
+  $('exp-setsize-badge').textContent = trial.setSize + ' objek';
+
+  // RT prev
+  $('exp-rt-prev').textContent = expState.lastRT ? `RT sebelumnya: ${Math.round(expState.lastRT)} ms` : '';
+
+  // Progress
+  const pct = Math.round((currentIndex / total) * 100);
+  const fill = $('exp-progress-fill');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-fill ' + (isPractice ? 'practice' : 'main');
+
+  const progressLabel = isPractice
+    ? `Latihan ${currentIndex + 1} dari ${practiceTotal}`
+    : `Percobaan ${currentIndex - practiceTotal + 1} dari ${mainTotal}`;
+  $('exp-progress-label').textContent = progressLabel;
+  $('exp-progress-pct').textContent = pct + '%';
+
+  // Target name
+  $('exp-target-name').textContent = 'Lingkaran Merah';
+  $('exp-practice-note').style.display = isPractice ? '' : 'none';
+
+  // Show ready zone
+  $('exp-ready-zone').style.display = '';
+  $('exp-stimulus-zone').style.display = 'none';
+  $('exp-done-zone').style.display = 'none';
+  $('feedback-msg').style.display = 'none';
+  expState.phase = 'instruction';
+}
+
+function showStimulus() {
+  const trial = activeSession.schedule[expState.currentIndex];
+  const objs = generateObjects(trial.condition, trial.setSize, trial.targetPresent, trial.stimulusSeed);
+
+  $('exp-ready-zone').style.display = 'none';
+  $('exp-stimulus-zone').style.display = '';
+  $('absent-btn').disabled = false;
+  $('stimulus-area').className = 'stimulus-area';
+  $('feedback-msg').style.display = 'none';
+
+  // Render objects
+  const inner = $('stimulus-inner');
+  inner.innerHTML = '';
+  objs.forEach((obj, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'stim-obj';
+    btn.style.left = obj.x + '%';
+    btn.style.top = obj.y + '%';
+    btn.appendChild(drawShape(obj.shape, obj.color, 36));
+    btn.setAttribute('aria-label', `${obj.shape} ${obj.color}`);
+    btn.addEventListener('click', () => handleObjectClick(obj));
+    inner.appendChild(btn);
+  });
+
+  expState.responded = false;
+  expState.phase = 'stimulus';
+  expState.stimulusOnset = performance.now();
+}
+
+function handleObjectClick(obj) {
+  if (expState.responded || expState.phase !== 'stimulus') return;
+  expState.responded = true;
+  const rt = performance.now() - expState.stimulusOnset;
+  const response = obj.isTarget ? 'target_found' : 'wrong_object';
+  recordResponse(response, rt);
+}
+
+function handleAbsent() {
+  if (expState.responded || expState.phase !== 'stimulus') return;
+  expState.responded = true;
+  const rt = performance.now() - expState.stimulusOnset;
+  recordResponse('target_absent', rt);
+}
+
+function recordResponse(response, rt) {
+  const trial = activeSession.schedule[expState.currentIndex];
+  const valid = rt >= 100 && rt <= 10000;
+  const correct = (trial.targetPresent && response === 'target_found') ||
+                  (!trial.targetPresent && response === 'target_absent');
+
+  const result = {
+    participantId: activeSession.participantId,
+    sessionId: activeSession.sessionId,
+    trialNumber: expState.currentIndex + 1,
+    condition: trial.condition,
+    setSize: trial.setSize,
+    targetPresent: trial.targetPresent,
+    response, correct,
+    reactionTimeMs: rt,
+    trialValid: valid,
+    invalidReason: !valid ? (rt < 100 ? 'Terlalu cepat' : 'Terlalu lambat') : null,
+    stimulusSeed: trial.stimulusSeed,
+    timestamp: new Date().toISOString(),
+    isPractice: trial.isPractice
+  };
+
+  activeSession.trials.push(result);
+  saveSession(activeSession);
+
+  // Feedback
+  expState.lastRT = rt;
+  expState.phase = 'feedback';
+  const area = $('stimulus-area');
+  area.className = 'stimulus-area ' + (correct ? 'feedback-correct' : 'feedback-incorrect');
+  $('absent-btn').disabled = true;
+  Array.from($('stimulus-inner').querySelectorAll('.stim-obj')).forEach(b => b.disabled = true);
+
+  const msg = $('feedback-msg');
+  msg.textContent = correct ? '✓ Benar!' : '✗ Salah';
+  msg.className = 'feedback-msg ' + (correct ? 'correct' : 'incorrect');
+  msg.style.display = 'inline-block';
+
+  const delay = trial.isPractice ? 1000 : 500;
+  expState.feedbackTimer = setTimeout(() => {
+    expState.currentIndex++;
+    renderTrial();
+  }, delay);
+}
+
+function finishExperiment() {
+  activeSession.endTime = new Date().toISOString();
+  activeSession.completed = true;
+  saveSession(activeSession);
+
+  $('exp-ready-zone').style.display = 'none';
+  $('exp-stimulus-zone').style.display = 'none';
+  $('exp-done-zone').style.display = '';
+  const mainTrials = activeSession.trials.filter(t => !t.isPractice);
+  $('exp-done-count').textContent = `Kamu telah menyelesaikan ${mainTrials.length} percobaan utama.`;
+}
+
+// ============================================================
+// STORAGE
+// ============================================================
+function getSessions() {
+  try { return JSON.parse(localStorage.getItem('vsl_sessions') || '[]'); }
+  catch { return []; }
+}
+
+function saveSession(session) {
+  const all = getSessions();
+  const idx = all.findIndex(s => s.sessionId === session.sessionId);
+  if (idx >= 0) all[idx] = session; else all.push(session);
+  localStorage.setItem('vsl_sessions', JSON.stringify(all));
+}
+
+function getSession(id) {
+  return getSessions().find(s => s.sessionId === id) || null;
+}
+
+function deleteSession(id) {
+  const all = getSessions().filter(s => s.sessionId !== id);
+  localStorage.setItem('vsl_sessions', JSON.stringify(all));
+  if (activeSession && activeSession.sessionId === id) activeSession = null;
+}
+
+function deleteAllSessions() {
+  localStorage.removeItem('vsl_sessions');
+  activeSession = null;
+}
+
+// ============================================================
+// ANALYSIS
+// ============================================================
+function mean(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null; }
+function median(arr) {
+  if (!arr.length) return null;
+  const s = [...arr].sort((a,b)=>a-b), m = Math.floor(s.length/2);
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+}
+function stdDev(arr) {
+  if (arr.length < 2) return null;
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/(arr.length-1));
+}
+
+function condStats(trials, condition, targetPresent) {
+  const rel = trials.filter(t => !t.isPractice && t.condition===condition && t.targetPresent===targetPresent);
+  const valid = rel.filter(t => t.trialValid);
+  const correct = valid.filter(t => t.correct);
+  const incorrect = valid.filter(t => !t.correct);
+  const rts = correct.map(t => t.reactionTimeMs).filter(r => r !== null);
+  const bySS = SET_SIZES.map(ss => {
+    const ssc = correct.filter(t => t.setSize===ss);
+    const ssrt = ssc.map(t => t.reactionTimeMs).filter(r=>r!==null);
+    return { setSize:ss, meanRT: mean(ssrt), n: ssc.length };
+  });
+  return {
+    meanRT: mean(rts), medianRT: median(rts), stdRT: stdDev(rts),
+    accuracy: valid.length ? (correct.length/valid.length)*100 : null,
+    validTrials: valid.length, correctTrials: correct.length,
+    incorrectTrials: incorrect.length, invalidTrials: rel.filter(t=>!t.trialValid).length,
+    bySetSize: bySS
+  };
+}
+
+function linReg(points) {
+  const n = points.length;
+  if (n < 2) return null;
+  const sx = points.reduce((a,p)=>a+p.x,0);
+  const sy = points.reduce((a,p)=>a+p.y,0);
+  const sxy = points.reduce((a,p)=>a+p.x*p.y,0);
+  const sx2 = points.reduce((a,p)=>a+p.x*p.x,0);
+  const d = n*sx2 - sx*sx;
+  if (!d) return null;
+  const slope = (n*sxy - sx*sy)/d;
+  const intercept = (sy - slope*sx)/n;
+  const my = sy/n;
+  const sst = points.reduce((a,p)=>a+(p.y-my)**2,0);
+  const ssr = points.reduce((a,p)=>a+(p.y-(intercept+slope*p.x))**2,0);
+  return { slope, intercept, rSquared: sst ? 1-ssr/sst : 1 };
+}
+
+function searchSlope(trials, condition, targetPresent) {
+  const rel = trials.filter(t => !t.isPractice && t.condition===condition &&
+    t.targetPresent===targetPresent && t.trialValid && t.correct && t.reactionTimeMs!==null);
+  const sizes = [...new Set(rel.map(t=>t.setSize))].sort((a,b)=>a-b);
+  if (sizes.length < 2) return { slope:null, intercept:null, rSquared:null, dataPoints:sizes.length };
+  const pts = sizes.map(ss => {
+    const rts = rel.filter(t=>t.setSize===ss).map(t=>t.reactionTimeMs);
+    const m = mean(rts);
+    return m!==null ? {x:ss, y:m} : null;
+  }).filter(Boolean);
+  if (pts.length < 2) return { slope:null, intercept:null, rSquared:null, dataPoints:pts.length };
+  const reg = linReg(pts);
+  return reg ? { slope:reg.slope, intercept:reg.intercept, rSquared:reg.rSquared, dataPoints:pts.length } : { slope:null, intercept:null, rSquared:null, dataPoints:pts.length };
+}
+
+function interpretation(trials) {
+  const fsTP = searchSlope(trials,'feature_search',true);
+  const csTP = searchSlope(trials,'conjunction_search',true);
+  const fsRTs = trials.filter(t=>!t.isPractice&&t.condition==='feature_search'&&t.trialValid&&t.correct).map(t=>t.reactionTimeMs).filter(Boolean);
+  const csRTs = trials.filter(t=>!t.isPractice&&t.condition==='conjunction_search'&&t.trialValid&&t.correct).map(t=>t.reactionTimeMs).filter(Boolean);
+  const fsMean = mean(fsRTs), csMean = mean(csRTs);
+  const lines = [];
+  if (fsMean) lines.push(`Rata-rata waktu reaksi pada Feature Search adalah ${Math.round(fsMean)} ms.`);
+  if (csMean) lines.push(`Rata-rata waktu reaksi pada Conjunction Search adalah ${Math.round(csMean)} ms.`);
+  if (fsTP.slope!==null) lines.push(`Search Slope Feature Search (target ada): ${fsTP.slope.toFixed(2)} ms/objek.`);
+  if (csTP.slope!==null) lines.push(`Search Slope Conjunction Search (target ada): ${csTP.slope.toFixed(2)} ms/objek.`);
+  if (fsTP.slope!==null && csTP.slope!==null) {
+    if (csTP.slope > fsTP.slope) lines.push('Pola ini sesuai prediksi — Conjunction Search menunjukkan peningkatan waktu reaksi lebih besar seiring bertambahnya jumlah objek.');
+    else if (Math.abs(csTP.slope-fsTP.slope) < 5) lines.push('Kedua kondisi menunjukkan pola yang relatif serupa.');
+    else lines.push('Hasil tidak sepenuhnya sesuai prediksi teoritis. Faktor strategi individu dan kondisi pengujian perlu dipertimbangkan.');
+  }
+  lines.push('Catatan: Interpretasi berdasarkan data eksperimen Anda. Satu sesi belum cukup untuk menyimpulkan signifikansi statistik.');
+  return lines.join(' ');
+}
+
+// ============================================================
+// RESULTS RENDER
+// ============================================================
+let rtChartInst = null, accChartInst = null;
+let chartFilter = 'present';
+let showTable = false;
+let tablePage = 0;
+const PAGE_SIZE = 15;
+
+function renderResults() {
+  const container = $('results-content');
+  const session = activeSession || (getSessions().sort((a,b)=>new Date(b.startTime)-new Date(a.startTime))[0]);
+  if (!session) {
+    container.innerHTML = '<div class="no-data">Belum ada sesi aktif. <button class="nav-link" style="display:inline;color:#4f46e5" onclick="navigate(\'setup\')">Mulai eksperimen</button></div>';
+    return;
+  }
+  if (rtChartInst) { rtChartInst.destroy(); rtChartInst = null; }
+  if (accChartInst) { accChartInst.destroy(); accChartInst = null; }
+
+  const { trials } = session;
+  const main = trials.filter(t => !t.isPractice);
+  const fsTP = condStats(trials,'feature_search',true);
+  const fsTA = condStats(trials,'feature_search',false);
+  const csTP = condStats(trials,'conjunction_search',true);
+  const csTA = condStats(trials,'conjunction_search',false);
+  const fsTPslope = searchSlope(trials,'feature_search',true);
+  const fsTAslope = searchSlope(trials,'feature_search',false);
+  const csTPslope = searchSlope(trials,'conjunction_search',true);
+  const csTAslope = searchSlope(trials,'conjunction_search',false);
+
+  const totalValid = main.filter(t=>t.trialValid).length;
+  const totalCorrect = main.filter(t=>t.correct).length;
+  const totalIncorrect = main.filter(t=>!t.correct&&t.trialValid).length;
+  const totalInvalid = main.filter(t=>!t.trialValid).length;
+
+  const fmt = v => v===null||v===undefined ? '—' : Math.round(v);
+  const fmtAcc = v => v===null ? '—' : v.toFixed(1);
+  const fmtSlope = v => v===null||v===undefined ? '—' : v.toFixed(2);
+  const fmtR2 = v => v===null||v===undefined ? '' : `R²=${v.toFixed(2)}`;
+
+  container.innerHTML = `
+    <div class="results-header">
+      <div class="results-title">
+        <h1>Hasil Eksperimen</h1>
+        <p>Peserta: <strong>${session.participantId}</strong> · ${new Date(session.startTime).toLocaleString('id-ID')}</p>
+      </div>
+      <div class="export-btns">
+        <button class="export-btn raw" onclick="exportRaw()">⬇ Data Mentah CSV</button>
+        <button class="export-btn summary" onclick="exportSummary()">📄 Ringkasan CSV</button>
+      </div>
+    </div>
+
+    ${main.length===0 ? '<div class="disclaimer" style="margin-bottom:20px">Belum ada percobaan utama yang selesai. Selesaikan eksperimen untuk melihat analisis lengkap.</div>' : ''}
+
+    <div class="stats-grid" style="margin-bottom:24px">
+      ${sc('Percobaan Valid', totalValid, '', '', 'stat-indigo')}
+      ${sc('Jawaban Benar', totalCorrect, '', '', 'stat-green')}
+      ${sc('Jawaban Salah', totalIncorrect, '', '', 'stat-red')}
+      ${sc('Tidak Valid', totalInvalid, '', '', 'stat-gray')}
+    </div>
+
+    <div class="section-card">
+      <h2><span class="dot-indigo"></span> Feature Search</h2>
+      <div class="stats-grid">
+        ${sc('Rata-rata RT (ada)', fmt(fsTP.meanRT), 'ms', '', 'stat-indigo')}
+        ${sc('Akurasi (ada)', fmtAcc(fsTP.accuracy), '%', `${fsTP.correctTrials} benar`, 'stat-green')}
+        ${sc('Rata-rata RT (tidak ada)', fmt(fsTA.meanRT), 'ms', '', 'stat-indigo')}
+        ${sc('Akurasi (tidak ada)', fmtAcc(fsTA.accuracy), '%', `${fsTA.correctTrials} benar`, 'stat-green')}
+        ${sc('Median RT (ada)', fmt(fsTP.medianRT), 'ms', `SD: ${fmt(fsTP.stdRT)} ms`, 'stat-gray')}
+        ${sc('Percobaan Valid (ada)', fsTP.validTrials, '', '', 'stat-gray')}
+        ${sc('Median RT (tidak ada)', fmt(fsTA.medianRT), 'ms', `SD: ${fmt(fsTA.stdRT)} ms`, 'stat-gray')}
+        ${sc('Percobaan Valid (tidak ada)', fsTA.validTrials, '', '', 'stat-gray')}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2><span class="dot-orange"></span> Conjunction Search</h2>
+      <div class="stats-grid">
+        ${sc('Rata-rata RT (ada)', fmt(csTP.meanRT), 'ms', '', 'stat-amber')}
+        ${sc('Akurasi (ada)', fmtAcc(csTP.accuracy), '%', `${csTP.correctTrials} benar`, 'stat-green')}
+        ${sc('Rata-rata RT (tidak ada)', fmt(csTA.meanRT), 'ms', '', 'stat-amber')}
+        ${sc('Akurasi (tidak ada)', fmtAcc(csTA.accuracy), '%', `${csTA.correctTrials} benar`, 'stat-green')}
+        ${sc('Median RT (ada)', fmt(csTP.medianRT), 'ms', `SD: ${fmt(csTP.stdRT)} ms`, 'stat-gray')}
+        ${sc('Percobaan Valid (ada)', csTP.validTrials, '', '', 'stat-gray')}
+        ${sc('Median RT (tidak ada)', fmt(csTA.medianRT), 'ms', `SD: ${fmt(csTA.stdRT)} ms`, 'stat-gray')}
+        ${sc('Percobaan Valid (tidak ada)', csTA.validTrials, '', '', 'stat-gray')}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2>📈 Search Slope</h2>
+      <p class="slope-note" style="margin-bottom:14px">Perubahan waktu reaksi yang diperkirakan untuk setiap tambahan satu objek (ms/objek). Nilai mendekati nol = hubungan datar. Nilai positif lebih besar = waktu reaksi meningkat seiring jumlah objek.</p>
+      <div class="slope-grid">
+        ${sc('Feature (ada)', fmtSlope(fsTPslope.slope), fsTPslope.slope!==null?'ms/obj':'', fsTPslope.rSquared!==null?fmtR2(fsTPslope.rSquared)+`, n=${fsTPslope.dataPoints}`:'Data belum cukup', fsTPslope.slope===null?'stat-gray':'stat-indigo')}
+        ${sc('Feature (tidak ada)', fmtSlope(fsTAslope.slope), fsTAslope.slope!==null?'ms/obj':'', fsTAslope.rSquared!==null?fmtR2(fsTAslope.rSquared)+`, n=${fsTAslope.dataPoints}`:'Data belum cukup', fsTAslope.slope===null?'stat-gray':'stat-indigo')}
+        ${sc('Conjunction (ada)', fmtSlope(csTPslope.slope), csTPslope.slope!==null?'ms/obj':'', csTPslope.rSquared!==null?fmtR2(csTPslope.rSquared)+`, n=${csTPslope.dataPoints}`:'Data belum cukup', csTPslope.slope===null?'stat-gray':'stat-amber')}
+        ${sc('Conjunction (tidak ada)', fmtSlope(csTAslope.slope), csTAslope.slope!==null?'ms/obj':'', csTAslope.rSquared!==null?fmtR2(csTAslope.rSquared)+`, n=${csTAslope.dataPoints}`:'Data belum cukup', csTAslope.slope===null?'stat-gray':'stat-amber')}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2 style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+        🎯 Hubungan Jumlah Objek dengan Waktu Reaksi
+        <div class="chart-filter" style="margin-left:auto">
+          <button id="cf-present" class="${chartFilter==='present'?'active':''}" onclick="setChartFilter('present')">Target Ada</button>
+          <button id="cf-absent" class="${chartFilter==='absent'?'active':''}" onclick="setChartFilter('absent')">Target Tidak Ada</button>
+          <button id="cf-both" class="${chartFilter==='both'?'active':''}" onclick="setChartFilter('both')">Keduanya</button>
+        </div>
+      </h2>
+      <canvas id="rt-chart" height="120"></canvas>
+    </div>
+
+    <div class="section-card">
+      <h2>✅ Akurasi per Set Size (Target Ada)</h2>
+      <canvas id="acc-chart" height="100"></canvas>
+    </div>
+
+    ${main.length > 0 ? `<div class="interpretation-box">
+      <h2>💡 Interpretasi Hasil</h2>
+      <p>${interpretation(trials)}</p>
+    </div>` : ''}
+
+    <div class="section-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <h2 style="margin:0">📋 Data Percobaan</h2>
+        <button class="table-toggle" onclick="toggleTable()">${showTable?'Sembunyikan':'Tampilkan tabel'}</button>
+      </div>
+      <div id="trial-table-container">${showTable ? renderTable(trials) : '<p style="color:#94a3b8;font-size:.85rem;text-align:center;padding:16px 0">Klik "Tampilkan tabel" untuk melihat data mentah.</p>'}</div>
+    </div>
+  `;
+
+  drawRtChart(trials);
+  drawAccChart(trials);
+}
+
+function sc(label, value, unit, sub, cls) {
+  return `<div class="stat-card ${cls}">
+    <div class="slabel">${label}</div>
+    <div class="sval">${value}${unit ? `<span class="sunit">${unit}</span>` : ''}</div>
+    ${sub ? `<div class="ssub">${sub}</div>` : ''}
+  </div>`;
+}
+
+function setChartFilter(f) {
+  chartFilter = f;
+  ['present','absent','both'].forEach(x => {
+    const btn = $('cf-'+x);
+    if (btn) btn.className = (x===f ? 'active' : '');
+  });
+  const session = activeSession || getSessions().sort((a,b)=>new Date(b.startTime)-new Date(a.startTime))[0];
+  if (session) { if(rtChartInst){rtChartInst.destroy();rtChartInst=null;} drawRtChart(session.trials); }
+}
+
+function drawRtChart(trials) {
+  const ctx = $('rt-chart');
+  if (!ctx) return;
+  const main = trials.filter(t => !t.isPractice);
+  const tps = chartFilter==='present' ? [true] : chartFilter==='absent' ? [false] : [true,false];
+
+  const fsData = [], csData = [];
+  SET_SIZES.forEach(ss => {
+    let fsRT = [], csRT = [];
+    tps.forEach(tp => {
+      const f = main.filter(t=>t.condition==='feature_search'&&t.setSize===ss&&t.targetPresent===tp&&t.trialValid&&t.correct).map(t=>t.reactionTimeMs);
+      const c = main.filter(t=>t.condition==='conjunction_search'&&t.setSize===ss&&t.targetPresent===tp&&t.trialValid&&t.correct).map(t=>t.reactionTimeMs);
+      fsRT = [...fsRT, ...f]; csRT = [...csRT, ...c];
+    });
+    fsData.push(mean(fsRT)); csData.push(mean(csRT));
+  });
+
+  rtChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: SET_SIZES,
+      datasets: [
+        { label:'Feature Search', data:fsData, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,.1)', pointBackgroundColor:'#4f46e5', tension:.3, spanGaps:true },
+        { label:'Conjunction Search', data:csData, borderColor:'#f97316', backgroundColor:'rgba(249,115,22,.1)', pointBackgroundColor:'#f97316', tension:.3, spanGaps:true }
+      ]
+    },
+    options: {
+      responsive:true, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y!==null?Math.round(ctx.parsed.y)+' ms':'—'}`}} },
+      scales:{
+        x:{title:{display:true,text:'Jumlah Objek (Set Size)'}},
+        y:{title:{display:true,text:'Rata-rata RT (ms)'}, beginAtZero:false}
+      }
+    }
+  });
+}
+
+function drawAccChart(trials) {
+  const ctx = $('acc-chart');
+  if (!ctx) return;
+  const main = trials.filter(t => !t.isPractice);
+  const fsAcc = SET_SIZES.map(ss => {
+    const rel = main.filter(t=>t.condition==='feature_search'&&t.setSize===ss&&t.targetPresent===true&&t.trialValid);
+    const cor = rel.filter(t=>t.correct);
+    return rel.length ? (cor.length/rel.length)*100 : null;
+  });
+  const csAcc = SET_SIZES.map(ss => {
+    const rel = main.filter(t=>t.condition==='conjunction_search'&&t.setSize===ss&&t.targetPresent===true&&t.trialValid);
+    const cor = rel.filter(t=>t.correct);
+    return rel.length ? (cor.length/rel.length)*100 : null;
+  });
+  accChartInst = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:SET_SIZES.map(s=>`n=${s}`),
+      datasets:[
+        {label:'Feature Search', data:fsAcc, backgroundColor:'rgba(79,70,229,.7)', borderRadius:4},
+        {label:'Conjunction Search', data:csAcc, backgroundColor:'rgba(249,115,22,.7)', borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'bottom'}},
+      scales:{
+        y:{min:0,max:100,title:{display:true,text:'Akurasi (%)'}},
+        x:{title:{display:true,text:'Set Size'}}
+      }
+    }
+  });
+}
+
+function toggleTable() {
+  showTable = !showTable; tablePage = 0; renderResults();
+}
+
+function renderTable(trials) {
+  const filtered = trials.sort((a,b)=>a.trialNumber-b.trialNumber);
+  const total = filtered.length;
+  const pages = Math.ceil(total/PAGE_SIZE);
+  const slice = filtered.slice(tablePage*PAGE_SIZE, (tablePage+1)*PAGE_SIZE);
+  const rows = slice.map(t => {
+    const cls = t.isPractice ? 'practice-row' : (!t.correct ? 'wrong-row' : '');
+    const condLabel = t.condition==='feature_search'?'Feature':'Conjunction';
+    const respLabel = t.response==='target_found'?'Ditemukan':t.response==='target_absent'?'Tidak Ada':'Salah Pilih';
+    return `<tr class="${cls}">
+      <td>${t.trialNumber}${t.isPractice?'<span class="tag tag-amber" style="margin-left:4px">L</span>':''}</td>
+      <td>${condLabel}</td>
+      <td style="text-align:center">${t.setSize}</td>
+      <td style="text-align:center">${t.targetPresent?'<span class="tag tag-green">Ada</span>':'<span class="tag tag-gray">Tidak</span>'}</td>
+      <td>${respLabel}</td>
+      <td style="text-align:center">${t.correct?'<span style="color:#16a34a;font-weight:700">✓</span>':'<span style="color:#dc2626;font-weight:700">✗</span>'}</td>
+      <td style="text-align:right;font-family:monospace">${t.reactionTimeMs!==null?Math.round(t.reactionTimeMs):'—'}</td>
+      <td style="text-align:center">${t.trialValid?'<span style="color:#16a34a;font-size:.85rem">✓</span>':'<span style="color:#ef4444;font-size:.85rem" title="${t.invalidReason||""}">✗</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="trial-table-wrap">
+    <table>
+      <thead><tr><th>No.</th><th>Kondisi</th><th>Set Size</th><th>Target</th><th>Respons</th><th>Benar</th><th>RT (ms)</th><th>Valid</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${pages>1?`<div class="pagination">
+      <span>Menampilkan ${tablePage*PAGE_SIZE+1}–${Math.min((tablePage+1)*PAGE_SIZE,total)} dari ${total}</span>
+      <div class="pag-btns">
+        <button class="pag-btn" onclick="changePage(-1)" ${tablePage===0?'disabled':''}>←</button>
+        <button class="pag-btn" onclick="changePage(1)" ${tablePage>=pages-1?'disabled':''}>→</button>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+function changePage(dir) {
+  tablePage += dir;
+  const container = $('trial-table-container');
+  const session = activeSession || getSessions().sort((a,b)=>new Date(b.startTime)-new Date(a.startTime))[0];
+  if (container && session) container.innerHTML = renderTable(session.trials);
+}
+
+// ============================================================
+// CSV EXPORT
+// ============================================================
+function esc(v) {
+  if (v===null||v===undefined) return '';
+  const s = String(v);
+  return (s.includes(',')||s.includes('"')||s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function row(fields) { return fields.map(esc).join(','); }
+
+function exportRaw() {
+  const session = activeSession || getSessions().sort((a,b)=>new Date(b.startTime)-new Date(a.startTime))[0];
+  if (!session) return;
+  const headers = 'participant_id,session_id,trial_number,is_practice,condition,set_size,target_present,response,correct,reaction_time_ms,trial_valid,invalid_reason,stimulus_seed,timestamp';
+  const rows = session.trials.map(t => row([t.participantId,t.sessionId,t.trialNumber,t.isPractice,t.condition,t.setSize,t.targetPresent,t.response,t.correct,t.reactionTimeMs,t.trialValid,t.invalidReason,t.stimulusSeed,t.timestamp]));
+  downloadCsv([headers,...rows].join('\n'), `vsl_rawdata_${session.sessionId}.csv`);
+}
+
+function exportSummary() {
+  const session = activeSession || getSessions().sort((a,b)=>new Date(b.startTime)-new Date(a.startTime))[0];
+  if (!session) return;
+  const { trials } = session;
+  const defs = [
+    ['feature_search',true,'Feature Search - Target Tersedia'],
+    ['feature_search',false,'Feature Search - Target Tidak Tersedia'],
+    ['conjunction_search',true,'Conjunction Search - Target Tersedia'],
+    ['conjunction_search',false,'Conjunction Search - Target Tidak Tersedia'],
+  ];
+  const hdr = 'kondisi,mean_rt_ms,median_rt_ms,std_rt_ms,akurasi_persen,percobaan_valid,percobaan_benar,percobaan_salah,percobaan_tidak_valid,search_slope_ms_per_obj,intercept,r_squared';
+  const rows2 = defs.map(([c,tp,label]) => {
+    const st = condStats(trials,c,tp);
+    const sl = searchSlope(trials,c,tp);
+    return row([label,st.meanRT?.toFixed(2),st.medianRT?.toFixed(2),st.stdRT?.toFixed(2),st.accuracy?.toFixed(2),st.validTrials,st.correctTrials,st.incorrectTrials,st.invalidTrials,sl.slope?.toFixed(4),sl.intercept?.toFixed(2),sl.rSquared?.toFixed(4)]);
+  });
+  const csv = ['# RINGKASAN STATISTIK',hdr,...rows2,'','# Sesi: '+session.sessionId,'# Peserta: '+session.participantId,'# Mulai: '+session.startTime,'# Selesai: '+(session.endTime||'-')].join('\n');
+  downloadCsv(csv, `vsl_summary_${session.sessionId}.csv`);
+}
+
+function downloadCsv(content, filename) {
+  const blob = new Blob(['\uFEFF'+content], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+let deleteConfirmId = null;
+let deleteAllConfirm = false;
+
+function renderHistory() {
+  const sessions = getSessions().sort((a,b)=>new Date(b.startTime)-new Date(a.startTime));
+  $('history-count').textContent = sessions.length + ' sesi tersimpan';
+
+  const confirmAll = $('history-confirm-all');
+  confirmAll.innerHTML = deleteAllConfirm ? `
+    <div class="confirm-box">
+      <div>⚠</div>
+      <p>Hapus semua sesi?<strong>Tindakan ini tidak dapat dibatalkan.</strong></p>
+      <div class="confirm-btns">
+        <button class="confirm-cancel" onclick="cancelDeleteAll()">Batal</button>
+        <button class="confirm-ok" onclick="doDeleteAll()">Hapus</button>
+      </div>
+    </div>` : '';
+  confirmAll.style.display = deleteAllConfirm ? '' : 'none';
+
+  const list = $('history-list');
+  if (!sessions.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🕐</div><p>Belum ada sesi tersimpan.</p><button class="btn-primary" style="margin:0 auto" onclick="navigate('setup')">Mulai Eksperimen</button></div>`;
+    return;
+  }
+
+  list.innerHTML = sessions.map(s => {
+    const main = s.trials.filter(t=>!t.isPractice);
+    const fsTP = condStats(s.trials,'feature_search',true);
+    const csTP = condStats(s.trials,'conjunction_search',true);
+    const dur = s.endTime ? Math.round((new Date(s.endTime)-new Date(s.startTime))/60000) : null;
+    const isConfirm = deleteConfirmId === s.sessionId;
+
+    return `
+    ${isConfirm ? `<div class="confirm-box">
+      <div>⚠</div>
+      <p>Hapus sesi ini?<strong>Data sesi akan dihapus permanen.</strong></p>
+      <div class="confirm-btns">
+        <button class="confirm-cancel" onclick="cancelDelete()">Batal</button>
+        <button class="confirm-ok" onclick="doDelete('${s.sessionId}')">Hapus</button>
+      </div>
+    </div>` : ''}
+    <div class="session-card">
+      <div class="sc-header">
+        <div class="sc-meta">
+          <strong>${s.participantId}</strong>
+          <p>${new Date(s.startTime).toLocaleString('id-ID')}${dur!==null?' · '+dur+' menit':''}</p>
+          <div class="sc-tags">
+            <span class="tag ${s.mode==='practice'?'tag-amber':'tag-green'}">${s.mode==='practice'?'Latihan':'Eksperimen'}</span>
+            <span class="tag ${s.completed?'tag-green':'tag-gray'}">${s.completed?'Selesai':'Belum selesai'}</span>
+          </div>
+        </div>
+        <div class="sc-actions">
+          <button class="sc-action-btn view" title="Lihat hasil" onclick="viewSession('${s.sessionId}')">👁</button>
+          <button class="sc-action-btn dl" title="Unduh CSV" onclick="exportSessionRaw('${s.sessionId}')">⬇</button>
+          <button class="sc-action-btn del" title="Hapus sesi" onclick="confirmDelete('${s.sessionId}')">🗑</button>
+        </div>
+      </div>
+      ${main.length > 0 ? `<div class="sc-mini-stats">
+        <div class="sc-mini" style="background:#eef2ff;color:#4338ca"><p>Feature RT</p><p>${fsTP.meanRT!==null?Math.round(fsTP.meanRT)+' ms':'—'}</p></div>
+        <div class="sc-mini" style="background:#fff7ed;color:#c2410c"><p>Conjunction RT</p><p>${csTP.meanRT!==null?Math.round(csTP.meanRT)+' ms':'—'}</p></div>
+        <div class="sc-mini" style="background:#f0fdf4;color:#15803d"><p>Akurasi Feature</p><p>${fsTP.accuracy!==null?fsTP.accuracy.toFixed(0)+'%':'—'}</p></div>
+        <div class="sc-mini" style="background:#f0fdf4;color:#15803d"><p>Akurasi Conj.</p><p>${csTP.accuracy!==null?csTP.accuracy.toFixed(0)+'%':'—'}</p></div>
+      </div>` : `<p style="font-size:.8rem;color:#94a3b8">Belum ada percobaan utama.</p>`}
+    </div>`;
+  }).join('');
+}
+
+function viewSession(id) {
+  const s = getSession(id);
+  if (!s) return;
+  activeSession = s;
+  navigate('results');
+}
+
+function exportSessionRaw(id) {
+  const s = getSession(id);
+  if (!s) return;
+  const saved = activeSession;
+  activeSession = s;
+  exportRaw();
+  activeSession = saved;
+}
+
+function confirmDelete(id) { deleteConfirmId = id; renderHistory(); }
+function cancelDelete() { deleteConfirmId = null; renderHistory(); }
+function doDelete(id) { deleteSession(id); deleteConfirmId = null; renderHistory(); }
+function confirmDeleteAll() { deleteAllConfirm = true; renderHistory(); }
+function cancelDeleteAll() { deleteAllConfirm = false; renderHistory(); }
+function doDeleteAll() { deleteAllSessions(); deleteAllConfirm = false; renderHistory(); }
+
+// ============================================================
+// INIT
+// ============================================================
+navigate('home');
+</script>
+</body>
+</html>
